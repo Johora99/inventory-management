@@ -3,8 +3,8 @@ require('dotenv').config();
 const cors = require("cors");
 const app = express();
 app.use(express.json());
-
-
+const authRoutes = require("./routes/authRouter");
+const errorHandler = require("./middlewares/errorMiddleware");
 
 app.use(cors());
 
@@ -19,11 +19,12 @@ app.get("/", (req, res) => {
 
 // Your existing routes
 
-// app.use("/api/auth", authRoutes);
+app.use("/api/auth", authRoutes);
 
 
 
 
-
+// Error Handler
+app.use(errorHandler);
 
 module.exports = app;
