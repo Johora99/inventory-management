@@ -1,4 +1,4 @@
-const { body } = require("express-validator");
+const { body, param } = require("express-validator");
 
 const registerStartValidation = [
   body("fullName")
@@ -39,6 +39,13 @@ const googleLoginValidation = [
     .isURL()
     .withMessage("Photo must be a valid URL"),
 ];
+const userValidation = [
+  param("email")
+    .notEmpty()
+    .withMessage("Email is required")
+    .isEmail()
+    .withMessage("Invalid email format"),
+];
 const loginValidation = [
   body("email").notEmpty().isEmail().withMessage("Valid email is required"),
   body("password").notEmpty().withMessage("Password is required"),
@@ -47,4 +54,5 @@ module.exports = {
   registerStartValidation,
   googleLoginValidation,
   loginValidation,
+  userValidation,
 }

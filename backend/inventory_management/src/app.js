@@ -5,6 +5,7 @@ const app = express();
 app.use(express.json());
 const authRoutes = require("./routes/authRouter");
 const errorHandler = require("./middlewares/errorMiddleware");
+const inventoryRoute = require("./routes/inventoryRoute")
 
 app.use(cors());
 
@@ -20,6 +21,7 @@ app.get("/", (req, res) => {
 // Your existing routes
 
 app.use("/api/auth", authRoutes);
+app.use("/api/inventory", inventoryRoute);
 
 
 

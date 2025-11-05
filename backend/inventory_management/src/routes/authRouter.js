@@ -3,6 +3,7 @@ const router = express.Router();
 const validate = require('../Validators/authValidator')
 const validateRequest = require('../middlewares/validateRequest')
 const ctrl = require('../Controllers/authController')
+const auth = require("../middlewares/authMiddleware");
 // Public routes
 router.post(
   "/register",
@@ -15,4 +16,14 @@ router.post(
   validate.loginValidation, 
   validateRequest, 
   ctrl.login);
+
+router.get(
+  "/user/byEmail/:email",
+  validate.userValidation,
+  validateRequest,
+  auth,
+  ctrl.getUserByEmail
+);
+
+
 module.exports = router;

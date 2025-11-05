@@ -71,7 +71,41 @@ const login = async (req, res, next) => {
     next(e);
   }
 };
+
+//  get user my email -------------------------------------
+const getUserByEmail = async (req, res, next) => {
+  try {
+    const { email } = req.params;
+
+    // Find user by email
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Exclude password from response
+    const { password, ...userSafe } = user.toObject();
+
+    res.json({
+      success: true,
+      message: "User retrieved successfully",
+      data: userSafe,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+
+
+
 module.exports = {
   register,
   login,
+  getUserByEmail,
 }
