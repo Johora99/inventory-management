@@ -4,6 +4,9 @@ import MainLayOut from '../MainLayOut/MainLayOut';
 import Home from '../Pages/Home/Home';
 import Registration from '../Pages/Registration/Registration';
 import Login from '../Pages/Login/Login';
+import Dashboard from '../Pages/Dashboard/Dashboard';
+import MyInventories from '../Pages/Dashboard/UserDashboard/MyInventories';
+import DashboardHome from '../Pages/Dashboard/Components/DashboardHome';
 
 export const router = createBrowserRouter([
   {
@@ -24,5 +27,19 @@ export const router = createBrowserRouter([
       }
     ]
     
+  },
+  {
+    path: '/dashboard',
+    Component: Dashboard,
+    children: [
+      {
+        index: true,
+        Component: DashboardHome
+      },
+      {
+        path: '/dashboard/my-inventories',
+        Component: MyInventories
+      }
+    ]
   }
 ]);
