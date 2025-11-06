@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import AuthContext from '../ContextAPI/AuthContext';
 import auth from '../firebase/firebase.init';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
 
 export default function AuthProvider({children}) {
   const [loading, setLoading] = useState(true)
+  const provider = new GoogleAuthProvider();
   const [user, setUser] = useState(() => {
   return localStorage.getItem("userEmail");
   });
@@ -48,6 +49,11 @@ const signOutUser = ()=>{
  })
   
 }
+// google sign in by using firebase =====================
+const googleSignIn = ()=>{
+  setLoading(true);
+  return signInWithPopup(auth,provider);
+}
    const authInfo = {
     setLoading,
     setUser,
@@ -55,6 +61,7 @@ const signOutUser = ()=>{
     setAuthUser,
     logout,
     signOutUser,
+    googleSignIn,
    }
   return (
   <AuthContext.Provider value={authInfo}>

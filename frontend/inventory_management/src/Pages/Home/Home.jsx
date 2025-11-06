@@ -9,7 +9,6 @@ export default function Home() {
   const axiosSecure = useAxiosSecure();
   const [selectedTag, setSelectedTag] = useState(null);
  const { allInventory, isLoading, refetch } = useAllInventory()
- console.log(allInventory)
   // Fetch latest inventories
   const { data: latestInventories = [], isLoading: loadingLatest } = useQuery({
     queryKey: ["latestInventories"],

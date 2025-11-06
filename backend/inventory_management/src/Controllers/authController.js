@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const User = require('../models/user')
 const bcrypt = require("bcryptjs");
 const connectDB = require("../config/db");
+
 const register = async (req, res, next) => {
   try {
      await connectDB();
@@ -43,6 +44,64 @@ const register = async (req, res, next) => {
     next(err);
   }
 };
+
+
+const googleAuth = async (req, res, next) => {
+  try {
+    const { email, fullName } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "Email is required",
+      });
+    }
+
+    // Check if user exists
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      // If not exists → create user
+      const payload = {
+        email,
+        fullName,
+        role: "user",
+        isGoogleUser: true,
+      };
+
+      user = await User.create(payload);
+
+      // Generate JWT
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+        expiresIn: "1d",
+      });
+
+      const { password: _, ...userSafe } = user.toObject();
+
+      return res.status(201).json({
+        success: true,
+        message: "Registration successful",
+        data: { user: userSafe, token },
+      });
+    }
+
+    // If user already exists → login
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "1d",
+    });
+
+    const { password: _, ...userSafe } = user.toObject();
+
+    return res.status(200).json({
+      success: true,
+      message: "Google login successful",
+      data: { user: userSafe, token },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 
 const login = async (req, res, next) => {
   try {
@@ -177,4 +236,5 @@ module.exports = {
   getAllUsers,
   deleteUser,
   updateUserRole,
+  googleAuth,
 }

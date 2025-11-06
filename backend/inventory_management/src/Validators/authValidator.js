@@ -33,11 +33,6 @@ const googleLoginValidation = [
     .withMessage("Email is required")
     .isEmail()
     .withMessage("Must be a valid email"),
-
-  body("profilePicture")
-    .optional({ checkFalsy: true })
-    .isURL()
-    .withMessage("Photo must be a valid URL"),
 ];
 const userValidation = [
   param("email")

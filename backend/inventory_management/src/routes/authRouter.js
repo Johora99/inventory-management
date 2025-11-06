@@ -12,6 +12,12 @@ router.post(
   ctrl.register
 );
 router.post(
+  "/register/google",
+  validate.googleLoginValidation,
+  validateRequest,
+  ctrl.googleAuth
+);
+router.post(
   "/login", 
   validate.loginValidation, 
   validateRequest, 

@@ -1,15 +1,49 @@
-import React from 'react'
-
+import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom';
+import useAxiosPublic from '../../Hooks/useAxiosPublic';
+import useAuth from "../../Hooks/useAuth";
 export default function GoogleLogin() {
-    const handleGoogleLogin = () => {
-    console.log('Google login clicked');
-    alert('Google login would be implemented here');
-  };
+const navigate = useNavigate();
+const axiosPublic = useAxiosPublic();
+const {googleSignIn, setAuthUser, setLoading} = useAuth()
+const [msg, setMsg] = useState(null);
+
+  const handleGoogleLogin = async () => {
+  try {
+    const res = await googleSignIn();
+  const userInfo = {
+  fullName: res.user?.displayName || "No Name",
+  email: res.user?.email,
+};
+
+    if (!userInfo.email) {
+        setMsg({ type: 'error', text:' Google account email not found!' });
+      return;
+    }
+
+    const response = await axiosPublic.post("/api/auth/register/google", userInfo);
+  if (response.status === 201 || response.status === 200) {
+      if (response.data.data.token) {
+         const { token, user } = response.data.data;
+        setAuthUser({ token, email: user.email });
+      } else {
+        localStorage.removeItem("token");
+      }
+      setLoading(false);
+        setMsg({ type: 'success', text: response.data.message});
+      navigate("/");
+    }
+  
+  } catch (error) {
+    console.error(error);
+
+  }
+};
   return (
     <div>
         <button
             onClick={handleGoogleLogin}
-            className="w-full flex items-center justify-center gap-3 border border-gray-300 rounded-lg py-2.5 px-4 hover:bg-gray-50 transition-colors"
+            className="w-full flex items-center justify-center gap-3 border border-gray-300 rounded-lg py-2.5 px-4 hover:bg-gray-50 transition-colors cursor-pointer"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path

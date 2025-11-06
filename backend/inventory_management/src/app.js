@@ -9,7 +9,6 @@ const inventoryRoute = require("./routes/inventoryRoute")
 
 app.use(cors());
 
-// ADD THIS ROOT ROUTE - This fixes the "Cannot GET /" error
 app.get("/", (req, res) => {
   res.json({
     message: "Backend is running successfully!",
@@ -19,7 +18,6 @@ app.get("/", (req, res) => {
 });
 
 // Your existing routes
-
 app.use("/api/auth", authRoutes);
 app.use("/api/inventory", inventoryRoute);
 
