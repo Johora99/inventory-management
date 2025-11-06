@@ -1,7 +1,8 @@
 import axios from "axios"
 
 const axiosPublic = axios.create({
-    baseURL:`${import.meta.env.VITE_API}`
+  // baseURL: "http://localhost:5000",
+    baseURL:'https://inventory-management-khaki-six.vercel.app',
 })
 export default function useAxiosPublic() {
   return axiosPublic  

@@ -7,6 +7,8 @@ import Login from '../Pages/Login/Login';
 import Dashboard from '../Pages/Dashboard/Dashboard';
 import MyInventories from '../Pages/Dashboard/UserDashboard/MyInventories';
 import DashboardHome from '../Pages/Dashboard/Components/DashboardHome';
+import AllUsers from '../Pages/Dashboard/AdminDashboard/AllUsers';
+import ManageInventory from '../Pages/Dashboard/AdminDashboard/ManageInventory';
 
 export const router = createBrowserRouter([
   {
@@ -39,6 +41,14 @@ export const router = createBrowserRouter([
       {
         path: '/dashboard/my-inventories',
         Component: MyInventories
+      },
+      {
+        path: '/dashboard/all-users',
+        Component: AllUsers
+      },
+      {
+        path: '/dashboard/manage-inventory',
+        Component: ManageInventory
       }
     ]
   }

@@ -28,7 +28,6 @@ export default function Registration() {
           if(response.data.data.token){
             const { token, user } = response.data.data;
              setAuthUser({ token, email: user.email });
-              reset(); 
               setMsg({ type: 'success', text: response.data.message});
               navigate("/"); 
               setIsLogin(false)

@@ -28,8 +28,8 @@ const CreateInventoryForm = ({onClose, selectedIds, inventoryToEdit = null}) => 
   const [previewId, setPreviewId] = useState(inventoryToEdit?.customId || '');
   const [draftId, setDraftId] = useState(inventoryToEdit?.id || null);
   const [version, setVersion] = useState(inventoryToEdit?.version || 0);
-  const {myInventory, isLoading, refetch} = useMyInventory()
-  // const { allInventory = [], isLoading, refetch } = useAllInventory();
+  // const {myInventory, isLoading, refetch} = useMyInventory()
+  const { allInventory = [], isLoading, refetch } = useAllInventory();
   const axiosSecure = useAxiosSecure();
  console.log(inventoryToEdit)
   const plainObject = {

@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaHome, FaBoxes, FaUsers, FaCog, FaUserShield, FaPlus, FaTimes } from "react-icons/fa";
+import { FaHome, FaBoxes, FaUsers, FaCog, FaUserShield, FaPlus, FaTimes, FaArrowLeft } from "react-icons/fa";
 import useAuth from "../../../Hooks/useAuth";
 
 export default function DashboardSidebar({ role = "user", isOpen, onClose, activeLink, setActiveLink }) {
@@ -12,8 +12,8 @@ export default function DashboardSidebar({ role = "user", isOpen, onClose, activ
     { name: "Shared Inventories", path: "/dashboard/shared", icon: <FaUsers /> },
   ];
   const adminLinks = [
-    { name: "All Users", path: "/dashboard/users", icon: <FaUserShield /> },
-    { name: "Manage Inventories", path: "/dashboard/manage", icon: <FaCog /> },
+    { name: "All Users", path: "/dashboard/all-users", icon: <FaUserShield /> },
+    { name: "Manage Inventories", path: "/dashboard/manage-inventory", icon: <FaCog /> },
   ];
 
   const links = role === "admin" ? [...commonLinks, ...adminLinks] : [...commonLinks, ...userLinks];
@@ -46,6 +46,10 @@ export default function DashboardSidebar({ role = "user", isOpen, onClose, activ
 
         {/* Scrollable Links */}
         <div className="flex-1 min-h-0 overflow-y-auto p-4 flex flex-col gap-3">
+        <Link to="/" className="inline-flex items-center text-white hover:text-teal-500 mb-2">
+  <FaArrowLeft className="mr-2" />
+  <span>Back</span>
+</Link>
           {links.map((link) => (
             <Link
               key={link.name}
