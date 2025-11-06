@@ -25,5 +25,7 @@ router.get(
   ctrl.getUserByEmail
 );
 
-
+router.get("/allUsers", auth, validateRequest, ctrl.getAllUsers);
+router.delete("/deleteUser/:id",auth, validateRequest, ctrl.deleteUser);
+router.put("/role/:id",auth, validateRequest, ctrl.updateUserRole);
 module.exports = router;

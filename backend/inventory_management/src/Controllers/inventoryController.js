@@ -1,11 +1,12 @@
 const Tag = require('../models/tag');
 const User = require("../models/user");
 const Inventory = require('../models/inventory');
-
+const connectDB = require("../config/db");
 
 const suggestTags = async (req, res) => {
   const { query } = req.query;
   try {
+     await connectDB();
     const suggestions = await Tag.find({
       name: { $regex: `^${query}`, $options: 'i' },
     })
@@ -20,6 +21,7 @@ const suggestTags = async (req, res) => {
 const suggestUsers = async (req, res) => {
   const { query } = req.query;
   try {
+     await connectDB();
     const suggestions = await User.find({
       $or: [
         { fullName: { $regex: `^${query}`, $options: 'i' } },
@@ -68,6 +70,7 @@ const saveDraftInventory = async (req, res) => {
   }
 
   try {
+     await connectDB();
     const user = await User.findById(req.user._id);
     if (!user) return res.status(400).json({ message: 'Invalid createdBy user' });
   for (const accessUser of data.accessUsers || []) {
@@ -110,7 +113,6 @@ const saveDraftInventory = async (req, res) => {
 };
 
 const createInventory = async (req, res) => {
-  console.log(req.body)
   const { id, title, description, category, tags, isPublic, accessUsers, customIdElements,customId, customFields } = req.body;
   const data = {
     title,
@@ -130,6 +132,7 @@ const createInventory = async (req, res) => {
   }
 
   try {
+     await connectDB();
     const user = await User.findById(req.user._id);
     if (!user) {
       return res.status(400).json({ message: 'Invalid createdBy user' });
@@ -176,6 +179,7 @@ const createInventory = async (req, res) => {
 
 const getUserInventories = async (req, res) => {
   try {
+     await connectDB();
     const userId = req.user._id; 
 
     const inventories = await Inventory.find({ createdBy: userId }).sort({ createdAt: -1 });
@@ -190,6 +194,7 @@ const getUserInventories = async (req, res) => {
 
 const getAllInventories = async (req, res) => {
   try {
+     await connectDB();
     const inventories = await Inventory.find()
       .populate("createdBy", "-password") 
       .sort({ createdAt: -1 }); 
@@ -203,28 +208,40 @@ const getAllInventories = async (req, res) => {
 
 const deleteInventory = async (req, res) => {
   try {
+     await connectDB();
     const inventoryId = req.params.id;
-    const userId = req.user._id; 
+    const userId = req.user._id;
+    const userRole = req.user.role; 
     const inventory = await Inventory.findById(inventoryId);
     if (!inventory) {
-      return res.status(404).json({ message: 'Inventory not found' });
+      return res.status(404).json({ message: "Inventory not found" });
     }
-    if (inventory.createdBy.toString() !== userId.toString()) {
-      return res.status(403).json({ message: 'You are not authorized to delete this inventory' });
+    const isOwner = inventory.createdBy.toString() === userId.toString();
+    const isAdmin = userRole === "admin";
+
+    if (!isOwner && !isAdmin) {
+      return res.status(403).json({
+        message: "You are not authorized to delete this inventory",
+      });
     }
     await Inventory.findByIdAndDelete(inventoryId);
-    res.status(200).json({ message: 'Inventory deleted successfully' });
+    res.status(200).json({
+      message: "Inventory deleted successfully",
+    });
   } catch (error) {
-    console.error('Error deleting inventory:', error);
-    res.status(500).json({ message: 'Failed to delete inventory', error });
+    console.error("Error deleting inventory:", error);
+    res.status(500).json({
+      message: "Failed to delete inventory",
+      error: error.message,
+    });
   }
 };
 
+
 // Helper to check access
-const canEditInventory = (user, inventory) => {
-
+const canEditInventory = async(user, inventory) => {
+   await connectDB();
   if (!user) return false;
-
   const isAdmin = user.role === "admin";
   const isCreator = inventory.createdBy.equals(user._id);
   const hasAccess = inventory.accessUsers?.some(
@@ -237,6 +254,7 @@ const canEditInventory = (user, inventory) => {
 
 const editInventories = async (req, res) => {
   try {
+     await connectDB();
     const inventoryId = req.params.id;
     const updates = req.body; 
 

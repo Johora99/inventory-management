@@ -1,5 +1,5 @@
 // api/index.js (in root directory)
-const app = require("./src/app");
+const app = require("../src/app");
 
 module.exports = (req, res) => {
   // Handle preflight requests

@@ -7,7 +7,7 @@ const { createServer } = require("node:http");
 dotenv.config();
 connectDB();
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 const server = createServer(app);
 
 if (process.env.NODE_ENV !== "production") {

@@ -1,9 +1,10 @@
 const jwt = require("jsonwebtoken");
 const User = require('../models/user')
 const bcrypt = require("bcryptjs");
+const connectDB = require("../config/db");
 const register = async (req, res, next) => {
-  console.log(req.body)
   try {
+     await connectDB();
     const { fullName, email, password } = req.body;
 
     // Check if verified user already exists
@@ -45,6 +46,7 @@ const register = async (req, res, next) => {
 
 const login = async (req, res, next) => {
   try {
+     await connectDB();
     const { email, password } = req.body;
     const u = await User.findOne({ email });
     if (!u)
@@ -75,6 +77,7 @@ const login = async (req, res, next) => {
 //  get user my email -------------------------------------
 const getUserByEmail = async (req, res, next) => {
   try {
+     await connectDB();
     const { email } = req.params;
 
     // Find user by email
@@ -101,11 +104,77 @@ const getUserByEmail = async (req, res, next) => {
 };
 
 
+ const getAllUsers = async (req, res) => {
+  try {
+     await connectDB();
+    const users = await User.find().sort({ createdAt: -1 });
+    res.status(200).json({ success: true, users });
+  } catch (error) {
+    console.error("Get users error:", error);
+    res.status(500).json({ success: false, message: "Failed to fetch users", error });
+  }
+};
 
+ const deleteUser = async (req, res) => {
+  try {
+     await connectDB();
+    const userId = req.params.id;
+
+    const user = await User.findByIdAndDelete(userId);
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    res.status(200).json({ success: true, message: "User deleted successfully", deletedUser: user });
+  } catch (error) {
+    console.error("Delete user error:", error);
+    res.status(500).json({ success: false, message: "Failed to delete user", error });
+  }
+};
+const updateUserRole = async (req, res) => {
+  try {
+     await connectDB();
+    const { id } = req.params;
+    const { role } = req.body; 
+    if (!role) {
+      return res.status(400).json({ success: false, message: "Role is required" });
+    }
+    const allowedRoles = ["user", "creator", "admin"];
+    if (!allowedRoles.includes(role)) {
+      return res.status(400).json({ success: false, message: "Invalid role specified" });
+    }
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      { role },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "User role updated successfully",
+      updatedUser,
+    });
+  } catch (error) {
+    console.error("Update role error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to update user role",
+      error: error.message,
+    });
+  }
+};
 
 
 module.exports = {
   register,
   login,
   getUserByEmail,
+  getAllUsers,
+  deleteUser,
+  updateUserRole,
 }
