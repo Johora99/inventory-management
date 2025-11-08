@@ -14,35 +14,44 @@ export default function Registration() {
   const {setLoading, setAuthUser} = useAuth()
   const axiosPublic = useAxiosPublic()
   const navigate = useNavigate();
-  const onSubmit = async(data) => {
-    setLoading(true)
-    try {
-      const userInfo = {
-        fullName: data.fullName,
-        email: data.email,
-        password: data.password,
-      };
-      // saveUserInfo(userInfo)
-      const response = await axiosPublic.post("/api/auth/register", userInfo);
-      if (response.status === 201 || response.status === 200) {
-          if(response.data.data.token){
-            const { token, user } = response.data.data;
-             setAuthUser({ token, email: user.email });
-              setMsg({ type: 'success', text: response.data.message});
-              navigate("/"); 
-              setIsLogin(false)
-            }else{
-              localStorage.removeItem('token')
-              setIsLogin(false)
-            }
+const onSubmit = async (data) => {
+  setLoading(true);
+  try {
+    const userInfo = {
+      fullName: data.fullName,
+      email: data.email,
+      password: data.password,
+    };
+
+    const response = await axiosPublic.post("/api/auth/register", userInfo);
+
+    if (response.status === 201 || response.status === 200) {
+      const user = response.data.data?.user;
+
+      // ✅ Check if user is blocked
+      if (user?.isBlocked) {
+        setMsg({ type: 'error', text: "Your account is blocked. Please contact admin." });
+        localStorage.removeItem('token');
+        return;
       }
-    } catch (err) {
-      console.error(err);
-      setMsg({ type: 'error', text: err.response?.data?.message });
-    }finally {
-    setLoading(false); 
+
+      if (response.data.data.token) {
+        const { token } = response.data.data;
+        setAuthUser({ token, email: user.email });
+        setMsg({ type: 'success', text: response.data.message });
+        navigate("/");
+      } else {
+        localStorage.removeItem('token');
+      }
+    }
+  } catch (err) {
+    console.error(err);
+    setMsg({ type: 'error', text: err.response?.data?.message });
+  } finally {
+    setLoading(false);
   }
-  };
+};
+
 
 
   return (

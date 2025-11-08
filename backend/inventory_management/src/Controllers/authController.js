@@ -5,12 +5,19 @@ const connectDB = require("../config/db");
 
 const register = async (req, res, next) => {
   try {
-     await connectDB();
+    await connectDB();
     const { fullName, email, password } = req.body;
 
-    // Check if verified user already exists
-    const existingVerified = await User.findOne({ email});
-    if (existingVerified) {
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+
+    if (existingUser) {
+      if (existingUser.isBlocked) {
+        return res.status(403).json({
+          success: false,
+          message: "This user is blocked and cannot register",
+        });
+      }
       return res.status(400).json({
         success: false,
         message: "Email already registered",
@@ -19,13 +26,15 @@ const register = async (req, res, next) => {
 
     // Hash password
     const hashed = await bcrypt.hash(password, 10);
-    // Create user
+
+    // Create new user
     const newUser = await User.create({
       fullName,
       email,
       password: hashed,
       role: "user",
       isGoogleUser: false,
+      isBlocked: false, // ensure default blocked status
     });
 
     // Generate JWT
@@ -60,13 +69,22 @@ const googleAuth = async (req, res, next) => {
     // Check if user exists
     let user = await User.findOne({ email });
 
+    if (user && user.isBlocked) {
+      // Blocked user cannot login/register
+      return res.status(403).json({
+        success: false,
+        message: "This user is blocked and cannot login",
+      });
+    }
+
     if (!user) {
-      // If not exists → create user
+      // If user does not exist → create new Google user
       const payload = {
         email,
         fullName,
         role: "user",
         isGoogleUser: true,
+        isBlocked: false, // default to not blocked
       };
 
       user = await User.create(payload);
@@ -85,7 +103,7 @@ const googleAuth = async (req, res, next) => {
       });
     }
 
-    // If user already exists → login
+    // Existing, unblocked user → login
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: "1d",
     });
@@ -101,6 +119,7 @@ const googleAuth = async (req, res, next) => {
     next(err);
   }
 };
+
 
 
 const login = async (req, res, next) => {
@@ -173,7 +192,35 @@ const getUserByEmail = async (req, res, next) => {
     res.status(500).json({ success: false, message: "Failed to fetch users", error });
   }
 };
+// 🔒 Block user
+ const blockUser = async (req, res) => {
+  try {
+    await connectDB();
+    const userId = req.params.id;
 
+    const user = await User.findByIdAndUpdate(userId, { isBlocked: true }, { new: true });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    res.status(200).json({ success: true, message: `${user.fullName} has been blocked.` });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// ✅ Unblock user
+ const unblockUser = async (req, res) => {
+  try {
+    await connectDB();
+    const userId = req.params.id;
+
+    const user = await User.findByIdAndUpdate(userId, { isBlocked: false }, { new: true });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    res.status(200).json({ success: true, message: `${user.fullName} has been unblocked.` });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
  const deleteUser = async (req, res) => {
   try {
      await connectDB();
@@ -227,7 +274,20 @@ const updateUserRole = async (req, res) => {
     });
   }
 };
+// ❌ Remove Admin Role — even from themselves
+ const removeAdmin = async (req, res) => {
+  try {
+    await connectDB();
+    const userId = req.params.id;
 
+    const user = await User.findByIdAndUpdate(userId, { role: "user" }, { new: true });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    res.status(200).json({ success: true, message: `${user.fullName} is no longer an admin.` });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 module.exports = {
   register,
@@ -237,4 +297,7 @@ module.exports = {
   deleteUser,
   updateUserRole,
   googleAuth,
+  blockUser,
+  unblockUser,
+  removeAdmin,
 }

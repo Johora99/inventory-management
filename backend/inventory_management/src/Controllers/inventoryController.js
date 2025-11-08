@@ -208,23 +208,32 @@ const getAllInventories = async (req, res) => {
 
 const deleteInventory = async (req, res) => {
   try {
-     await connectDB();
+    await connectDB();
+
     const inventoryId = req.params.id;
     const userId = req.user._id;
-    const userRole = req.user.role; 
+    const userRole = req.user.role;
+
     const inventory = await Inventory.findById(inventoryId);
+
     if (!inventory) {
       return res.status(404).json({ message: "Inventory not found" });
     }
+
     const isOwner = inventory.createdBy.toString() === userId.toString();
     const isAdmin = userRole === "admin";
+    const isAccessUser = inventory.accessUsers?.some(
+      (u) => u.user.toString() === userId.toString()
+    );
 
-    if (!isOwner && !isAdmin) {
+    if (!isOwner && !isAdmin && !isAccessUser) {
       return res.status(403).json({
         message: "You are not authorized to delete this inventory",
       });
     }
+
     await Inventory.findByIdAndDelete(inventoryId);
+
     res.status(200).json({
       message: "Inventory deleted successfully",
     });

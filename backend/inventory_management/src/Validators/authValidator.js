@@ -1,4 +1,5 @@
 const { body, param } = require("express-validator");
+const User = require("../models/user"); 
 
 const registerStartValidation = [
   body("fullName")
@@ -11,7 +12,14 @@ const registerStartValidation = [
     .notEmpty()
     .withMessage("Email is required")
     .isEmail()
-    .withMessage("Please enter a valid email address"),
+    .withMessage("Please enter a valid email address")
+    .custom(async (email) => {
+      const existingUser = await User.findOne({ email });
+      if (existingUser && existingUser.isBlocked) {
+        throw new Error("This user is blocked and cannot register");
+      }
+      return true;
+    }),
 
   body("password")
     .notEmpty()
@@ -32,8 +40,16 @@ const googleLoginValidation = [
     .notEmpty()
     .withMessage("Email is required")
     .isEmail()
-    .withMessage("Must be a valid email"),
+    .withMessage("Must be a valid email")
+    .custom(async (email) => {
+      const existingUser = await User.findOne({ email });
+      if (existingUser && existingUser.isBlocked) {
+        throw new Error("This user is blocked and cannot login");
+      }
+      return true;
+    }),
 ];
+
 const userValidation = [
   param("email")
     .notEmpty()
@@ -41,13 +57,15 @@ const userValidation = [
     .isEmail()
     .withMessage("Invalid email format"),
 ];
+
 const loginValidation = [
   body("email").notEmpty().isEmail().withMessage("Valid email is required"),
   body("password").notEmpty().withMessage("Password is required"),
 ];
+
 module.exports = {
   registerStartValidation,
   googleLoginValidation,
   loginValidation,
   userValidation,
-}
+};

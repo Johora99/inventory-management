@@ -4,6 +4,8 @@ const validate = require('../Validators/authValidator')
 const validateRequest = require('../middlewares/validateRequest')
 const ctrl = require('../Controllers/authController')
 const auth = require("../middlewares/authMiddleware");
+const { validationResult } = require("express-validator");
+const verifyAdmin = require("../middlewares/verifyAdmin")
 // Public routes
 router.post(
   "/register",
@@ -32,6 +34,8 @@ router.get(
 );
 
 router.get("/allUsers", auth, validateRequest, ctrl.getAllUsers);
-router.delete("/deleteUser/:id",auth, validateRequest, ctrl.deleteUser);
-router.put("/role/:id",auth, validateRequest, ctrl.updateUserRole);
+router.delete("/deleteUser/:id",auth, validateRequest, verifyAdmin, ctrl.deleteUser);
+router.put("/role/:id",auth, validateRequest, verifyAdmin, ctrl.updateUserRole);
+router.patch("/block/:id", auth,validateRequest, verifyAdmin, ctrl.blockUser);
+router.patch("/unblock/:id", auth, validateRequest, verifyAdmin, ctrl.unblockUser);
 module.exports = router;

@@ -9,6 +9,7 @@ const inventoryRoute = require("./routes/inventoryRoute")
 
 app.use(cors());
 
+
 app.get("/", (req, res) => {
   res.json({
     message: "Backend is running successfully!",

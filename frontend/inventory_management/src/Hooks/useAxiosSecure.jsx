@@ -1,8 +1,8 @@
 import axios from "axios";
 
 const axiosSecure = axios.create({
-  baseURL: "http://localhost:5001",
-  // baseURL:'https://inventory-management-khaki-six.vercel.app',
+  // baseURL: "http://localhost:5001",
+  baseURL:'https://inventory-management-nu-sandy-20.vercel.app',
 });
 
 axiosSecure.interceptors.request.use(

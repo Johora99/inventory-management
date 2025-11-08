@@ -19,6 +19,10 @@ const userSchema = new mongoose.Schema(
     },
     isGoogleUser: { type: Boolean, default: false },
     role: { type: String, enum: ["user", "admin"], default: "user" },
+    isBlocked: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
@@ -32,6 +36,10 @@ userSchema.virtual("id").get(function () {
 });
 userSchema.set("toJSON", { virtuals: true });
 
+// check admin role
+userSchema.methods.isAdmin = function () {
+  return this.role === "admin";
+};
 // ✅ Prevent OverwriteModelError
 const User = mongoose.models.User || mongoose.model("User", userSchema);
 

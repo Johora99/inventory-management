@@ -13,20 +13,30 @@ export default function Login() {
   const [msg, setMsg] = useState(null);
   const axiosPublic = useAxiosPublic()
     const navigate = useNavigate();
-  const onSubmit = async (data) => {
-      setLoading(true)
+const onSubmit = async (data) => {
+  setLoading(true);
   try {
     const userInfo = {
       email: data.email,
       password: data.password,
     };
+
     const response = await axiosPublic.post("/api/auth/login", userInfo);
-    if (response.status === 201 || response.status === 200) {
+
+    if (response.status === 200 || response.status === 201) {
+      const user = response.data.data?.user;
+
+      // ✅ Check if user is blocked
+      if (user?.isBlocked) {
+        setMsg({ type: 'error', text: "Your account is blocked. Please contact admin." });
+        localStorage.removeItem('token');
+        return;
+      }
+
       if (response.data.data.token) {
-         const { token, user } = response.data.data;
+        const { token } = response.data.data;
         setAuthUser({ token, email: user.email });
-        setLoading(false);
-        setMsg({ type: 'success', text: response.data.message});
+        setMsg({ type: 'success', text: response.data.message });
         reset();
         navigate("/");
       } else {
@@ -35,11 +45,12 @@ export default function Login() {
     }
   } catch (err) {
     console.error(err);
-  setMsg({ type: 'error', text: err.response?.data?.message });
-  }finally {
-    setLoading(false); // stop loading
+    setMsg({ type: 'error', text: err.response?.data?.message });
+  } finally {
+    setLoading(false);
   }
-  };
+};
+
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
