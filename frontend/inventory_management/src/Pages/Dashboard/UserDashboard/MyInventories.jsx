@@ -3,13 +3,14 @@ import { FaEdit, FaTrash, FaPlus, FaBoxOpen, FaCheckSquare, FaSquare } from "rea
 import CreateInventoryForm from "../Components/CreateInventoryForm";
 import useAxiosSecure from "../../../Hooks/useAxiosSecure";
 import useMyInventory from "../../../Hooks/useMyInventory";
-
+import { useNavigate } from "react-router-dom";
 export default function MyInventories() {
   const axiosSecure = useAxiosSecure();
   const { myInventory, isLoading, refetch } = useMyInventory();
   const [showForm, setShowForm] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
   const [inventoryToEdit, setInventoryToEdit] = useState(null);
+  const navigate = useNavigate();
 
   if (isLoading) {
     return (
@@ -168,9 +169,11 @@ const handleEdit = () => {
               <tbody className="divide-y divide-gray-200">
                 {myInventory.length > 0 ? (
                   myInventory.map((item, index) => (
+                  
                     <tr
                       key={item._id}
-                      className={`hover:bg-teal-50 transition-colors duration-150 ${
+                       onClick={() => navigate(`/dashboard/manage-inventory/${item._id}`)}
+                      className={`hover:bg-teal-50 transition-colors duration-150 cursor-pointer ${
                         selectedIds.includes(item._id) ? "bg-teal-50" : ""
                       }`}
                     >
@@ -178,7 +181,12 @@ const handleEdit = () => {
                         <input
                           type="checkbox"
                           checked={selectedIds.includes(item._id)}
-                          onChange={() => handleSelect(item._id)}
+                          onClick={(e) => e.stopPropagation()} 
+                          onMouseDown={(e) => e.stopPropagation()}
+                          onChange={(e) => {
+                           e.stopPropagation(); 
+                           handleSelect(item._id);
+                           }}
                           className="w-5 h-5 text-teal-600 border-gray-300 rounded focus:ring-teal-500 cursor-pointer"
                         />
                       </td>
@@ -212,6 +220,7 @@ const handleEdit = () => {
                         )}
                       </td>
                     </tr>
+                    
                   ))
                 ) : (
                   <tr>

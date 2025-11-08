@@ -1,16 +1,16 @@
-import React, { useState } from "react";
+import React, { useState } from 'react'
+import useAccessInventory from '../../../Hooks/useAccessInventory'
 import { FaEdit, FaTrash, FaPlus, FaBoxOpen, FaCheckSquare, FaSquare } from "react-icons/fa";
 import CreateInventoryForm from "../Components/CreateInventoryForm";
 import useAxiosSecure from "../../../Hooks/useAxiosSecure";
-import useMyInventory from "../../../Hooks/useMyInventory";
-import useAllInventory from "../../../Hooks/useAllInventory";
-
-export default function ManageInventory() {
+import { useNavigate } from "react-router-dom";
+export default function AccessInventory() {
+  const { accessInventory, isLoading, refetch} = useAccessInventory();
   const axiosSecure = useAxiosSecure();
-  const {  allInventory, isLoading, refetch } = useAllInventory();
   const [showForm, setShowForm] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
   const [inventoryToEdit, setInventoryToEdit] = useState(null);
+  const navigate = useNavigate();
 
   if (isLoading) {
     return (
@@ -30,10 +30,10 @@ export default function ManageInventory() {
   };
 
   const handleSelectAll = () => {
-    if (selectedIds.length === allInventory.length) {
+    if (selectedIds.length === accessInventory.length) {
       setSelectedIds([]);
     } else {
-      setSelectedIds(allInventory.map((item) => item._id));
+      setSelectedIds(accessInventory.map((item) => item._id));
     }
   };
 
@@ -56,7 +56,7 @@ export default function ManageInventory() {
 const handleEdit = () => {
   if (selectedIds.length === 0) return; // Nothing selected
 
-  const selectedItems = allInventory.filter(inv => selectedIds.includes(inv._id));
+  const selectedItems = accessInventory.filter(inv => selectedIds.includes(inv._id));
   setInventoryToEdit(selectedItems); // Can be 1 or more items
   setShowForm(true);
 };
@@ -64,13 +64,13 @@ const handleEdit = () => {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
             <FaBoxOpen className="text-4xl text-teal-600" />
-            <h1 className="text-4xl font-bold text-gray-800">My Inventories</h1>
+            <h1 className="text-4xl font-bold text-gray-800">My Access Inventories</h1>
           </div>
           <p className="text-gray-600">Manage and organize your inventory items</p>
         </div>
@@ -143,9 +143,9 @@ const handleEdit = () => {
                   <th className="px-6 py-4 text-left">
                     <button
                       onClick={handleSelectAll}
-                      className="flex items-center justify-center w-6 h-6 rounded border-1 border-white hover:bg-teal-700 transition-colors"
+                      className="flex items-center justify-center w-6 h-6 rounded border-2 border-white hover:bg-teal-700 transition-colors"
                     >
-                      {selectedIds.length === allInventory.length && allInventory.length > 0 ? (
+                      {selectedIds.length === accessInventory.length && accessInventory.length > 0 ? (
                         <FaCheckSquare className="text-white" />
                       ) : (
                         <FaSquare className="text-white opacity-50" />
@@ -167,11 +167,13 @@ const handleEdit = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {allInventory.length > 0 ? (
-                  allInventory.map((item, index) => (
+                {accessInventory.length > 0 ? (
+                  accessInventory.map((item, index) => (
+                  
                     <tr
                       key={item._id}
-                      className={`hover:bg-teal-50 transition-colors duration-150 ${
+                       onClick={() => navigate(`/dashboard/manage-inventory/${item._id}`)}
+                      className={`hover:bg-teal-50 transition-colors duration-150 cursor-pointer ${
                         selectedIds.includes(item._id) ? "bg-teal-50" : ""
                       }`}
                     >
@@ -218,6 +220,7 @@ const handleEdit = () => {
                         )}
                       </td>
                     </tr>
+                    
                   ))
                 ) : (
                   <tr>
@@ -236,9 +239,9 @@ const handleEdit = () => {
         </div>
 
         {/* Footer Info */}
-        {allInventory.length > 0 && (
+        {accessInventory.length > 0 && (
           <div className="mt-4 text-center text-gray-500 text-sm">
-            Total: {allInventory.length} {allInventory.length === 1 ? "inventory" : "inventories"}
+            Total: {accessInventory.length} {accessInventory.length === 1 ? "inventory" : "inventories"}
           </div>
         )}
       </div>
@@ -259,5 +262,5 @@ const handleEdit = () => {
         </div>
       )}
     </div>
-  );
+  )
 }

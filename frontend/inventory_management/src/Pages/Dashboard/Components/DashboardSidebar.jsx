@@ -9,7 +9,7 @@ export default function DashboardSidebar({ role = "user", isOpen, onClose, activ
   const commonLinks = [{ name: "Dashboard Home", path: "/dashboard", icon: <FaHome /> }];
   const userLinks = [
     { name: "My Inventories", path: "/dashboard/my-inventories", icon: <FaBoxes /> },
-    { name: "Shared Inventories", path: "/dashboard/shared", icon: <FaUsers /> },
+    { name: "Accessed Inventories", path: "/dashboard/accessInventory", icon: <FaUsers /> },
   ];
   const adminLinks = [
     { name: "All Users", path: "/dashboard/all-users", icon: <FaUserShield /> },

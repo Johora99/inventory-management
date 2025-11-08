@@ -312,6 +312,23 @@ const editInventories = async (req, res) => {
   }
 };
 
+const getAccessInventories = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const inventories = await Inventory.find({
+      "accessUsers.user": userId
+    })
+      .sort({ createdAt: -1 }) 
+
+    return res.status(200).json({
+      success: true,
+      count: inventories.length,
+      data: inventories,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 function isEmptyValue(value, field) {
   if (value === '') return true;
@@ -342,4 +359,5 @@ module.exports = {
   getAllInventories,
   deleteInventory,
   editInventories,
+  getAccessInventories,
 };

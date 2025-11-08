@@ -41,7 +41,7 @@ router.get(
   ctrl.createInventory
 );
 
-
+router.get("/access", auth, validateRequest, ctrl.getAccessInventories);
 router.get("/my-inventories", auth, validateRequest, ctrl.getUserInventories);
 router.get("/all-inventories", validateRequest, ctrl.getAllInventories);
 router.delete('/inventory/:id', auth, validateRequest, ctrl.deleteInventory);
